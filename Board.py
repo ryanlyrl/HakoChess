@@ -9,17 +9,6 @@ class Board:
         self.board = [[None for i in range(8)] for j in range(8)]
         self.screen = pygame.display.set_mode(window_size)
         self.square_size = (window_size[0] / 8, window_size[1] / 8)
-        for i in range(8):
-            if i % 2 == 0:
-                colour = (0,0,0)
-            else:
-                colour = (255, 255, 255)
-            for j in range(8):
-                if colour == (0,0,0):
-                    colour = (255,255,255)
-                else:
-                    colour = (0, 0, 0)
-                pygame.draw.rect(self.screen, colour, (j* self.square_size[0], i * self.square_size[1], self.square_size[0], self.square_size[1]))
         pygame.display.update()
 
         # White pieces
@@ -47,7 +36,7 @@ class Board:
         self.board[6][7] = Piece('knight', 'black_knight.png', 'black')
         self.board[7][7] = Piece('rook', 'black_rook.png', 'black')
 
-        self.draw_pieces()
+        self.draw_board()
         pygame.display.update()
         self.game_loop()
 
@@ -59,7 +48,49 @@ class Board:
                     image = image.convert_alpha()
                     self.screen.blit(image, (i*self.square_size[0], j*self.square_size[1]))
 
+    def draw_board(self):
+        for i in range(8):
+            if i % 2 == 0:
+                colour = (139,69,19)
+            else:
+                colour = (255,248,220)
+            for j in range(8):
+                if colour == (139,69,19):
+                    colour = (255,248,220)
+                else:
+                    colour = (139,69,19)
+                pygame.draw.rect(self.screen, colour, (j* self.square_size[0], i * self.square_size[1], self.square_size[0], self.square_size[1]))
+        self.draw_pieces()
+        pygame.display.update()
+
     def game_loop(self):
+        currently_selected = None
+        currently_selected_moves = None
+        current_piece_pos = None
         while True:
             pygame.display.update()
-            
+            event = pygame.event.poll()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                (pos_x, pos_y) = pygame.mouse.get_pos()
+                pos_x = int(pos_x // self.square_size[0])
+                pos_y = int(pos_y // self.square_size[1])
+                #print((pos_x, pos_y), currently_selected_moves)
+                if currently_selected is None:
+                    self.draw_board()
+
+                    if self.board[pos_x][pos_y] is not None:
+                        currently_selected = self.board[pos_x][pos_y]
+                        currently_selected_moves = self.board[pos_x][pos_y].get_moves(self.board, (pos_x, pos_y))
+                        current_piece_pos = (pos_x, pos_y)
+                        for (x,y) in currently_selected_moves:
+                            pygame.draw.rect(self.screen, (0,255,0), ((pos_x + x) * self.square_size[0], (pos_y + y) * self.square_size[1], self.square_size[0], self.square_size[1]))
+                            self.draw_pieces()
+                elif currently_selected is not None and currently_selected_moves is not None and current_piece_pos is not None:
+                    for move in currently_selected_moves:
+                        print(current_piece_pos)
+                        if (current_piece_pos[0] + move[0], current_piece_pos[1] + move[1]) == (pos_x, pos_y):
+                            self.board[pos_x][pos_y] = currently_selected
+                            self.board[current_piece_pos[0]][current_piece_pos[1]] = None
+                            currently_selected = None
+                            currently_selected_moves = None
+                            self.draw_board()
