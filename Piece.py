@@ -20,13 +20,33 @@ class Piece:
 
     def blocked_moves(self, board, pos, moves):
         print('block called')
-        if self.type == 'pawn' or self.type == 'knight' or self.type == 'king':
+        if self.type == 'knight' or self.type == 'king':
             return moves
 
         print('checking')
 
         valid_moves = []
         print(pos)
+
+        if self.type == 'pawn':
+            if self.colour == 'white':
+                if board[pos[0]][pos[1]+1] is not None and (0,1) in moves:
+                    moves.remove((0, 1))
+                    if (0,2) in moves:
+                        moves.remove((0, 2))
+                        return moves
+                if board[pos[0]][pos[1]+2] is not None and (0,2) in moves:
+                    moves.remove((0, 2))
+            else:
+                if board[pos[0]][pos[1]-1] is not None and (0,-1) in moves:
+                    moves.remove((0, -1))
+                    if not self.has_moved and (0,-2) in moves:
+                        moves.remove((0, -2))
+                        return moves
+                if board[pos[0]][pos[1]-2] is not None and (0,2) in moves:
+                    moves.remove((0, -2))
+            return moves
+
         if self.type == 'rook' or self.type == 'queen':
             for i in range(pos[1] - 1, -1, -1):
                 if board[pos[0]][i] is None:
@@ -117,8 +137,7 @@ class Piece:
 
             if self.colour == 'white':
                 if not self.has_moved:
-                    moves.append((0,2))
-                    self.has_moved = True
+                    moves.append((0, 2))
                 moves.append((0, 1))
                 if pos[0] > 0 and pos[1] < 8 and board[pos[0]-1][pos[1]+1] is not None and board[pos[0]-1][pos[1]+1].colour != self.colour:
                     moves.append((-1, 1))
@@ -129,7 +148,6 @@ class Piece:
             else:
                 if not self.has_moved:
                     moves.append((0, -2))
-                    self.has_moved = True
                 moves.append((0, -1))
                 if pos[0] > 0 and pos[1] > 0 and board[pos[0]-1][pos[1]-1] is not None and board[pos[0]-1][pos[1]-1].colour != self.colour:
                     moves.append((-1, -1))
