@@ -38,6 +38,7 @@ class Board:
 
         self.draw_board()
         pygame.display.update()
+        self.current_colour = 'white'
         self.game_loop()
 
     def draw_pieces(self):
@@ -71,6 +72,7 @@ class Board:
             pygame.display.update()
             event = pygame.event.poll()
             if event.type == pygame.MOUSEBUTTONDOWN:
+                print('click')
                 (pos_x, pos_y) = pygame.mouse.get_pos()
                 pos_x = int(pos_x // self.square_size[0])
                 pos_y = int(pos_y // self.square_size[1])
@@ -78,14 +80,27 @@ class Board:
                 if currently_selected is None:
                     self.draw_board()
 
-                    if self.board[pos_x][pos_y] is not None:
+                    if self.board[pos_x][pos_y] is not None and self.board[pos_x][pos_y].colour == self.current_colour:
                         currently_selected = self.board[pos_x][pos_y]
+                        print('click on', currently_selected.type)
                         currently_selected_moves = self.board[pos_x][pos_y].get_moves(self.board, (pos_x, pos_y))
                         current_piece_pos = (pos_x, pos_y)
                         for (x,y) in currently_selected_moves:
                             pygame.draw.rect(self.screen, (0,255,0), ((pos_x + x) * self.square_size[0], (pos_y + y) * self.square_size[1], self.square_size[0], self.square_size[1]))
                             self.draw_pieces()
                 elif currently_selected is not None and currently_selected_moves is not None and current_piece_pos is not None:
+                    # move another piece
+                    if self.board[pos_x][pos_y] is not None and self.board[pos_x][pos_y].colour == self.current_colour:
+                        print('switching')
+                        currently_selected = self.board[pos_x][pos_y]
+                        currently_selected_moves = self.board[pos_x][pos_y].get_moves(self.board, (pos_x, pos_y))
+                        current_piece_pos = (pos_x, pos_y)
+                        self.draw_board()
+                        for (x, y) in currently_selected_moves:
+                            pygame.draw.rect(self.screen, (0, 255, 0), (
+                                (pos_x + x) * self.square_size[0], (pos_y + y) * self.square_size[1],
+                                self.square_size[0], self.square_size[1]))
+                            self.draw_pieces()
                     for move in currently_selected_moves:
                         print(current_piece_pos)
                         if (current_piece_pos[0] + move[0], current_piece_pos[1] + move[1]) == (pos_x, pos_y):
@@ -94,3 +109,9 @@ class Board:
                             currently_selected = None
                             currently_selected_moves = None
                             self.draw_board()
+                            if self.current_colour == 'white':
+                                self.current_colour = 'black'
+                                print('Black turn')
+                            else:
+                                self.current_colour = 'white'
+                                print('White turn')
