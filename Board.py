@@ -4,42 +4,47 @@ from Piece import Piece
 
 class Board:
 
-    def __init__(self, window_size):
+    def __init__(self, window_size, display=True, board=None):
         pygame.init()
         self.board = [[None for i in range(8)] for j in range(8)]
         self.screen = pygame.display.set_mode(window_size)
         self.square_size = (window_size[0] / 8, window_size[1] / 8)
         pygame.display.update()
 
-        # White pieces
-        # pawns
-        for i in range(8):
-            self.board[i][1] = Piece('pawn', 'white_pawn.png', 'white')
-        self.board[0][0] = Piece('rook', 'white_rook.png', 'white')
-        self.board[1][0] = Piece('knight', 'white_knight.png', 'white')
-        self.board[2][0] = Piece('bishop', 'white_bishop.png', 'white')
-        self.board[3][0] = Piece('king', 'white_king.png', 'white')
-        self.board[4][0] = Piece('queen', 'white_queen.png', 'white')
-        self.board[5][0] = Piece('bishop', 'white_bishop.png', 'white')
-        self.board[6][0] = Piece('knight', 'white_knight.png', 'white')
-        self.board[7][0] = Piece('rook', 'white_rook.png', 'white')
+        if board:
+            self.board = board
+        else:
+            # White pieces
+            # pawns
+            for i in range(8):
+                self.board[i][1] = Piece('pawn', 'white_pawn.png', 'white')
+            self.board[0][0] = Piece('rook', 'white_rook.png', 'white')
+            self.board[1][0] = Piece('knight', 'white_knight.png', 'white')
+            self.board[2][0] = Piece('bishop', 'white_bishop.png', 'white')
+            self.board[3][0] = Piece('king', 'white_king.png', 'white')
+            self.board[4][0] = Piece('queen', 'white_queen.png', 'white')
+            self.board[5][0] = Piece('bishop', 'white_bishop.png', 'white')
+            self.board[6][0] = Piece('knight', 'white_knight.png', 'white')
+            self.board[7][0] = Piece('rook', 'white_rook.png', 'white')
 
-        # black pieces
-        for i in range(8):
-            self.board[i][6] = Piece('pawn', 'black_pawn.png', 'black')
-        self.board[0][7] = Piece('rook', 'black_rook.png', 'black')
-        self.board[1][7] = Piece('knight', 'black_knight.png', 'black')
-        self.board[2][7] = Piece('bishop', 'black_bishop.png', 'black')
-        self.board[3][7] = Piece('king', 'black_king.png', 'black')
-        self.board[4][7] = Piece('queen', 'black_queen.png', 'black')
-        self.board[5][7] = Piece('bishop', 'black_bishop.png', 'black')
-        self.board[6][7] = Piece('knight', 'black_knight.png', 'black')
-        self.board[7][7] = Piece('rook', 'black_rook.png', 'black')
+            # black pieces
+            for i in range(8):
+                self.board[i][6] = Piece('pawn', 'black_pawn.png', 'black')
+            self.board[0][7] = Piece('rook', 'black_rook.png', 'black')
+            self.board[1][7] = Piece('knight', 'black_knight.png', 'black')
+            self.board[2][7] = Piece('bishop', 'black_bishop.png', 'black')
+            self.board[3][7] = Piece('king', 'black_king.png', 'black')
+            self.board[4][7] = Piece('queen', 'black_queen.png', 'black')
+            self.board[5][7] = Piece('bishop', 'black_bishop.png', 'black')
+            self.board[6][7] = Piece('knight', 'black_knight.png', 'black')
+            self.board[7][7] = Piece('rook', 'black_rook.png', 'black')
 
-        self.draw_board()
-        pygame.display.update()
-        self.current_colour = 'white'
-        self.game_loop()
+        if display:
+            self.draw_board()
+            pygame.display.update()
+            self.current_colour = 'black'
+            if display:
+                self.game_loop()
 
     def draw_pieces(self):
         for i in range(8):
@@ -83,7 +88,7 @@ class Board:
                     if self.board[pos_x][pos_y] is not None and self.board[pos_x][pos_y].colour == self.current_colour:
                         currently_selected = self.board[pos_x][pos_y]
                         if currently_selected.type == 'king':
-                            currently_selected_moves = self.is_checkmate(self.current_colour)
+                            currently_selected_moves = self.is_checkmate(self.current_colour, self.board)
                         else:
                             currently_selected_moves = self.board[pos_x][pos_y].get_moves(self.board, (pos_x, pos_y))
                         current_piece_pos = (pos_x, pos_y)
@@ -119,32 +124,43 @@ class Board:
                                 self.current_colour = 'white'
                                 print('White turn')
 
-                            if not self.is_checkmate(self.current_colour):
+                            if not self.is_checkmate(self.current_colour, self.board):
                                 print('checkmate')
 
-    def is_checkmate(self, colour):
+    def is_checkmate(self, colour, board):
         opponent_possible_moves = []
+        player_possible_moves = []
         king_pos = ()
         for i in range(8):
             for j in range(8):
-                piece = self.board[i][j]
+                piece = board[i][j]
                 if piece is not None:
                     if piece.colour != colour:
-                        moves = piece.get_moves(self.board, (i, j))
+                        moves = piece.get_moves(board, (i, j))
                         for move in moves:
                             opponent_possible_moves.append((move[0] + i, move[1] + j))
+                    else:
+                        moves = piece.get_moves(board, (i, j))
+                        for move in moves:
+                            player_possible_moves.append((move[0] + i, move[1] + j))
                     if piece.colour == colour and piece.type == 'king':
                         king_pos = (i, j)
 
-        king = self.board[king_pos[0]][king_pos[1]]
+        king = board[king_pos[0]][king_pos[1]]
         if king_pos in opponent_possible_moves:
             print('check')
             king_moves = []
-            for move in king.get_moves(self.board, (king_pos[0], king_pos[1])):
+            for move in king.get_moves(board, (king_pos[0], king_pos[1])):
                 if (king_pos[0] + move[0], king_pos[1] + move[1]) not in opponent_possible_moves:
                     king_moves.append(move)
             if not king_moves:
+                # test_board = Board((500,500), False, board)
+                # for move in player_possible_moves:
+                #     test_board.board[move[0]][move[1]] = None
+                #     if test_board.board[move[0]][move[1]] is not None and test_board.board[move[0]][move[1]].colour != colour:
+                #         if self.is_checkmate(colour, test_board):
+                #             print('can kill to escape checkmate')
                 print('checkmate')
             return king_moves
         else:
-            return king.get_moves(self.board, (king_pos[0], king_pos[1]))
+            return king.get_moves(board, (king_pos[0], king_pos[1]))
