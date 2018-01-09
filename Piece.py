@@ -12,70 +12,70 @@ class Piece:
 
         if not (0 <= final_x < 8 and 0 <= final_y < 8):
             return False
-        if board[final_x][final_y] is not None:
-            if board[final_x][final_y].colour == self.colour:
+        if board.board[final_x][final_y] is not None:
+            if board.board[final_x][final_y].colour == self.colour:
                 return False
 
         return True
 
     def blocked_moves(self, board, pos, moves):
-        print('block called')
+        #print('block called')
         if self.type == 'knight' or self.type == 'king':
             return moves
 
-        print('checking')
+        #print('checking')
 
         valid_moves = []
-        print(pos)
+        #print(pos)
 
         if self.type == 'pawn':
             if self.colour == 'white':
-                if board[pos[0]][pos[1]+1] is not None and (0,1) in moves:
+                if board.board[pos[0]][pos[1]+1] is not None and (0,1) in moves:
                     moves.remove((0, 1))
                     if (0,2) in moves:
                         moves.remove((0, 2))
                         return moves
-                if board[pos[0]][pos[1]+2] is not None and (0,2) in moves:
+                if board.board[pos[0]][pos[1]+2] is not None and (0,2) in moves:
                     moves.remove((0, 2))
             else:
-                if board[pos[0]][pos[1]-1] is not None and (0,-1) in moves:
+                if board.board[pos[0]][pos[1]-1] is not None and (0,-1) in moves:
                     moves.remove((0, -1))
                     if not self.has_moved and (0,-2) in moves:
                         moves.remove((0, -2))
                         return moves
-                if board[pos[0]][pos[1]-2] is not None and (0,2) in moves:
+                if board.board[pos[0]][pos[1]-2] is not None and (0,2) in moves:
                     moves.remove((0, -2))
             return moves
 
         if self.type == 'rook' or self.type == 'queen':
             for i in range(pos[1] - 1, -1, -1):
-                if board[pos[0]][i] is None:
+                if board.board[pos[0]][i] is None:
                     valid_moves.append((pos[0], i))
-                elif board[pos[0]][i].colour != self.colour:
+                elif board.board[pos[0]][i].colour != self.colour:
                     valid_moves.append((pos[0],i))
                     break
                 else:
                     break
             for i in range(pos[1] + 1, 8):
-                if board[pos[0]][i] is None:
+                if board.board[pos[0]][i] is None:
                     valid_moves.append((pos[0], i))
-                elif board[pos[0]][i].colour != self.colour:
+                elif board.board[pos[0]][i].colour != self.colour:
                     valid_moves.append((pos[0], i))
                     break
                 else:
                     break
             for i in range(pos[0] - 1, -1, -1):
-                if board [i][pos[1]] is None:
+                if board.board[i][pos[1]] is None:
                     valid_moves.append((i, pos[1]))
-                elif board[i][pos[1]].colour != self.colour:
+                elif board.board[i][pos[1]].colour != self.colour:
                     valid_moves.append((i, pos[1]))
                     break
                 else:
                     break
             for i in range(pos[0] + 1, 8):
-                if board[i][pos[1]] is None:
+                if board.board[i][pos[1]] is None:
                     valid_moves.append((i, pos[1]))
-                elif board[i][pos[1]].colour != self.colour:
+                elif board.board[i][pos[1]].colour != self.colour:
                     valid_moves.append((i, pos[1]))
                     break
                 else:
@@ -84,9 +84,9 @@ class Piece:
         if self.type == 'bishop' or self.type == 'queen':
             x = pos[0] + 1; y = pos[1] + 1
             while x < 8 and y < 8:
-                if board[x][y] is None:
+                if board.board[x][y] is None:
                     valid_moves.append((x,y))
-                elif board[x][y].colour != self.colour:
+                elif board.board[x][y].colour != self.colour:
                     valid_moves.append((x,y))
                     break
                 else:
@@ -94,9 +94,9 @@ class Piece:
                 x += 1; y += 1
             x = pos[0] - 1; y = pos[1] + 1
             while x >= 0 and y < 8:
-                if board[x][y] is None:
+                if board.board[x][y] is None:
                     valid_moves.append((x,y))
-                elif board[x][y].colour != self.colour:
+                elif board.board[x][y].colour != self.colour:
                     valid_moves.append((x, y))
                     break
                 else:
@@ -104,9 +104,9 @@ class Piece:
                 x -= 1; y += 1
             x = pos[0] - 1; y = pos[1] - 1
             while x >= 0 and y >= 0:
-                if board[x][y] is None:
+                if board.board[x][y] is None:
                     valid_moves.append((x,y))
-                elif board[x][y].colour != self.colour:
+                elif board.board[x][y].colour != self.colour:
                     valid_moves.append((x, y))
                     break
                 else:
@@ -114,9 +114,9 @@ class Piece:
                 x -= 1; y -= 1
             x = pos[0] + 1; y = pos[1] - 1
             while x < 8 and y >= 0:
-                if board[x][y] is None:
+                if board.board[x][y] is None:
                     valid_moves.append((x,y))
-                elif board[x][y].colour != self.colour:
+                elif board.board[x][y].colour != self.colour:
                     valid_moves.append((x, y))
                     break
                 else:
@@ -124,7 +124,7 @@ class Piece:
                 x += 1; y -= 1
 
         move_output = []
-        print('valid',valid_moves)
+        #print('valid',valid_moves)
         for move in moves:
             if (pos[0] + move[0], pos[1] + move[1]) in valid_moves:
                 move_output.append(move)
@@ -139,20 +139,20 @@ class Piece:
                 if not self.has_moved:
                     moves.append((0, 2))
                 moves.append((0, 1))
-                if pos[0] > 0 and pos[1] < 8 and board[pos[0]-1][pos[1]+1] is not None and board[pos[0]-1][pos[1]+1].colour != self.colour:
+                if pos[0] > 0 and pos[1] < 8 and board.board[pos[0]-1][pos[1]+1] is not None and board.board[pos[0]-1][pos[1]+1].colour != self.colour:
                     moves.append((-1, 1))
                     print('can cap left')
-                if pos[0] < 7 and pos[1] < 8 and board[pos[0]+1][pos[1]+1] is not None and board[pos[0]+1][pos[1]+1].colour != self.colour:
+                if pos[0] < 7 and pos[1] < 8 and board.board[pos[0]+1][pos[1]+1] is not None and board.board[pos[0]+1][pos[1]+1].colour != self.colour:
                     moves.append((1, 1))
                     print('can cap right')
             else:
                 if not self.has_moved:
                     moves.append((0, -2))
                 moves.append((0, -1))
-                if pos[0] > 0 and pos[1] > 0 and board[pos[0]-1][pos[1]-1] is not None and board[pos[0]-1][pos[1]-1].colour != self.colour:
+                if pos[0] > 0 and pos[1] > 0 and board.board[pos[0]-1][pos[1]-1] is not None and board.board[pos[0]-1][pos[1]-1].colour != self.colour:
                     moves.append((-1, -1))
                     print('can cap left')
-                if pos[0] < 7 and pos[1] > 0 and board[pos[0]+1][pos[1]-1] is not None and board[pos[0]+1][pos[1]-1].colour != self.colour:
+                if pos[0] < 7 and pos[1] > 0 and board.board[pos[0]+1][pos[1]-1] is not None and board.board[pos[0]+1][pos[1]-1].colour != self.colour:
                     moves.append((1, -1))
                     print('can cap right')
 
@@ -189,5 +189,5 @@ class Piece:
 
         moves = self.blocked_moves(board, pos, moves)
 
-        print('Moves: ' + str(moves))
+        #print('Moves: ' + str(moves))
         return moves

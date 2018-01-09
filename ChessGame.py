@@ -13,6 +13,7 @@ class ChessGame:
         pygame.display.update()
         self.current_colour = 'black'
         self.game_loop()
+        self.checkmate_moves = []
 
     def draw_pieces(self):
         for i in range(8):
@@ -56,10 +57,7 @@ class ChessGame:
 
                     if self.board.board[pos_x][pos_y] is not None and self.board.board[pos_x][pos_y].colour == self.current_colour:
                         currently_selected = self.board.board[pos_x][pos_y]
-                        if currently_selected.type == 'king':
-                            currently_selected_moves = self.board.is_checkmate(self.current_colour, self.board.board)
-                        else:
-                            currently_selected_moves = self.board.board[pos_x][pos_y].get_moves(self.board.board, (pos_x, pos_y))
+                        currently_selected_moves = self.board.board[pos_x][pos_y].get_moves(self.board, (pos_x, pos_y))
                         current_piece_pos = (pos_x, pos_y)
                         for (x, y) in currently_selected_moves:
                             pygame.draw.rect(self.screen, (0, 255, 0), (
@@ -71,7 +69,7 @@ class ChessGame:
                     if self.board.board[pos_x][pos_y] is not None and self.board.board[pos_x][pos_y].colour == self.current_colour:
                         print('switching')
                         currently_selected = self.board.board[pos_x][pos_y]
-                        currently_selected_moves = self.board.board[pos_x][pos_y].get_moves(self.board.board, (pos_x, pos_y))
+                        currently_selected_moves = self.board.board[pos_x][pos_y].get_moves(self.board, (pos_x, pos_y))
                         current_piece_pos = (pos_x, pos_y)
                         self.draw_board()
                         for (x, y) in currently_selected_moves:
@@ -80,7 +78,7 @@ class ChessGame:
                                 self.square_size[0], self.square_size[1]))
                             self.draw_pieces()
                     for move in currently_selected_moves:
-                        print(current_piece_pos)
+                        #print(current_piece_pos)
                         if (current_piece_pos[0] + move[0], current_piece_pos[1] + move[1]) == (pos_x, pos_y):
                             self.board.board[pos_x][pos_y] = currently_selected
                             self.board.board[current_piece_pos[0]][current_piece_pos[1]] = None
@@ -95,14 +93,9 @@ class ChessGame:
                                 self.current_colour = 'white'
                                 print('White turn')
 
-                            if self.board.is_checkmate(self.current_colour, self.board.board, 0):
+                            if self.board.is_checkmate(self.current_colour, self.board, 0):
                                 print('checkmate')
 
-    def start(self):
-        pass
-        # self.do_turn(0)
-
-    # def do_turn(self, colour):
 
 
 ChessGame((500,500))

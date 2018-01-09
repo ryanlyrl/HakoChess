@@ -35,26 +35,33 @@ class Board:
             self.board[6][7] = Piece('knight', 'black_knight.png', 'black')
             self.board[7][7] = Piece('rook', 'black_rook.png', 'black')
 
-    def is_checkmate(self, colour, board, depth):
-        opponent_possible_moves = []
-        player_possible_moves = []
-        king_pos = ()
+    def get_all_moves(self, colour):
+        result = []
         for i in range(8):
             for j in range(8):
-                piece = board[i][j]
+                piece = self.board[i][j]
                 if piece is not None:
-                    if piece.colour != colour:
-                        moves = piece.get_moves(board, (i, j))
-                        for move in moves:
-                            opponent_possible_moves.append((move[0] + i, move[1] + j))
-                    else:
-                        moves = piece.get_moves(board, (i, j))
-                        for move in moves:
-                            player_possible_moves.append((move[0] + i, move[1] + j))
+                    if piece.colour == colour:
+                        for move in piece.get_moves(self, (i, j)):
+                            result.append((move[0] + i, move[1] + j))
+        return result
+
+    def is_checkmate(self, colour, board, depth):
+        if colour == 'white':
+            opponent_possible_moves = self.get_all_moves('black')
+        else:
+            opponent_possible_moves = self.get_all_moves('white')
+        player_possible_moves = self.get_all_moves(colour)
+        king_pos = ()
+        # Gets all possible moves for each player
+        for i in range(8):
+            for j in range(8):
+                piece = board.board[i][j]
+                if piece is not None:
                     if piece.colour == colour and piece.type == 'king':
                         king_pos = (i, j)
 
-        king = board[king_pos[0]][king_pos[1]]
+        king = board.board[king_pos[0]][king_pos[1]]
         if king_pos in opponent_possible_moves:
             print('check')
             for move in king.get_moves(board, (king_pos[0], king_pos[1])):
@@ -63,11 +70,11 @@ class Board:
             if depth == 0:
                 for move in player_possible_moves:
                     test_board = Board(self.board)
-                    test_board[move[0]][move[1]] = None
+                    test_board.board[move[0]][move[1]] = Piece('pawn', 'white_pawn.png', colour)
                     if not self.is_checkmate(colour, test_board, 1):
                         return False
                     print('can kill to escape')
-            print('checkmate')
+            print(colour, 'checkmate')
             return True
         else:
-            return True
+            return False
